@@ -29,25 +29,18 @@ def _get_subscriber():
     global subscriber
 
     if subscriber is None:
-        # 1. Check if GOOGLE_APPLICATION_CREDENTIALS holds a JSON string (starting with "{")
-        env_creds = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+        print("DEBUG: Attempting to initialize Pub/Sub subscriber...")
         
-        if env_creds.strip().startswith("{"):
-            # If it's a JSON string, write it to a temp file
-            temp_path = os.path.join(tempfile.gettempdir(), "pubsub_creds.json")
-            with open(temp_path, "w", encoding="utf-8") as f:
-                f.write(env_creds)
-            credentials = service_account.Credentials.from_service_account_file(temp_path)
-            subscriber = pubsub_v1.SubscriberClient(credentials=credentials)
-            
-        elif os.path.exists(env_creds):
-            # If it's a valid file path (Secret File on Render)
-            credentials = service_account.Credentials.from_service_account_file(env_creds)
-            subscriber = pubsub_v1.SubscriberClient(credentials=credentials)
-            
-        else:
-            # Fallback to default ADC (uses GOOGLE_APPLICATION_CREDENTIALS automatically)
+        creds_path = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+        print(f"DEBUG: GOOGLE_APPLICATION_CREDENTIALS is set to: {creds_path}")
+        print(f"DEBUG: Does the file exist? {os.path.exists(creds_path)}")
+
+        try:
             subscriber = pubsub_v1.SubscriberClient()
+            print("DEBUG: SubscriberClient initialized successfully!")
+        except DefaultCredentialsError:
+            print("ERROR: Could not find credentials.json. Check GOOGLE_APPLICATION_CREDENTIALS.")
+            raise
 
     return subscriber
 
