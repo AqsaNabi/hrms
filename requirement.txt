@@ -99,7 +99,7 @@ pyarrow==26.0.1
 pyasn1==0.6.5
 pyasn1_modules==0.4.2
 pycparser==3.12
-python==3.11.9
+
 pydantic==2.14.3
 pydantic_core==2.50.4
 pydeck==0.9.3
